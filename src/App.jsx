@@ -7,10 +7,15 @@ function App() {
     input,
     setInput,
     isSending,
+    isRecording,
+    isSpeaking,
     error,
     status,
     canSend,
+    canRecord,
     sendMessage,
+    startVoiceInput,
+    stopVoiceInput,
     resetChat,
     listRef,
     hasApiKey,
@@ -84,10 +89,20 @@ function App() {
                 value={input}
                 onChange={(event) => setInput(event.target.value)}
                 onKeyDown={handleKeyDown}
-                placeholder="Type a message and press Enter"
+                placeholder={isRecording ? 'Listening...' : 'Type a message and press Enter'}
                 rows={3}
+                disabled={isRecording}
               />
               <div className="chat__actions">
+                <button
+                  type="button"
+                  className={`btn btn--mic${isRecording ? ' is-recording' : ''}`}
+                  onClick={isRecording ? stopVoiceInput : startVoiceInput}
+                  disabled={!canRecord && !isRecording}
+                  aria-label={isRecording ? 'Stop recording' : 'Start voice input'}
+                >
+                  {isRecording ? '⏹ Stop' : '🎤 Speak'}
+                </button>
                 <button
                   type="button"
                   className="btn btn--primary"
