@@ -7,6 +7,7 @@
 
 .window {
   width: min(980px, 100%);
+  height: min(86svh, 760px);
   background: var(--panel);
   border: 2px solid var(--line);
   box-shadow: var(--shadow-strong);
@@ -75,6 +76,7 @@
   padding: 18px;
   display: grid;
   gap: 14px;
+  min-height: 0;
 }
 
 .window__meta {
@@ -118,15 +120,17 @@
   display: grid;
   grid-template-rows: 1fr auto;
   min-height: 440px;
+  min-height: 0;
 }
 
 .chat__screen {
   padding: 18px;
   display: grid;
   gap: 14px;
-  overflow-y: scroll;
+  overflow-y: auto;
   background-image: linear-gradient(transparent 95%, rgba(0, 0, 0, 0.04));
   background-size: 100% 28px;
+  min-height: 0;
 }
 
 .message {
@@ -273,6 +277,7 @@
 @media (max-width: 720px) {
   .window {
     box-shadow: none;
+    height: 88svh;
   }
 
   .message {

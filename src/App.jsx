@@ -1,121 +1,118 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import heroImg from './assets/hero.png'
 import './App.css'
+import { useChatViewModel } from './viewmodels/useChatViewModel'
 
 function App() {
-  const [count, setCount] = useState(0)
+  const {
+    messages,
+    input,
+    setInput,
+    isSending,
+    error,
+    status,
+    canSend,
+    sendMessage,
+    resetChat,
+    listRef,
+    hasApiKey,
+  } = useChatViewModel()
+
+  const handleKeyDown = (event) => {
+    if (event.key === 'Enter' && !event.shiftKey) {
+      event.preventDefault()
+      sendMessage()
+    }
+  }
 
   return (
-    <>
-      <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
-        </div>
-        <div>
-          <h1>Get started</h1>
-          <p>
-            Edit <code>src/App.jsx</code> and save to test <code>HMR</code>
-          </p>
-        </div>
-        <button
-          type="button"
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          Count is {count}
-        </button>
-      </section>
+    <div className="app">
+      <div className="window">
+        <header className="window__chrome">
+          <div className="window__controls" aria-hidden="true">
+            <span className="window__control"></span>
+            <span className="window__control"></span>
+            <span className="window__control"></span>
+          </div>
+          <div className="window__title">LabChat</div>
+          <div className="window__badge">Alex</div>
+        </header>
 
-      <div className="ticks"></div>
+        <nav className="window__menu" aria-label="Menu">
+          <button type="button">File</button>
+          <button type="button">Edit</button>
+          <button type="button">Search</button>
+          <button type="button">Help</button>
+        </nav>
 
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
-        </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
-        </div>
-      </section>
+        <section className="window__body">
+          <div className="window__meta">
+            <div className="meta__status">
+              <span
+                className={`status-dot ${hasApiKey ? 'is-on' : 'is-off'}`}
+                aria-hidden="true"
+              ></span>
+              <span>{status}</span>
+            </div>
+          </div>
 
-      <div className="ticks"></div>
-      <section id="spacer"></section>
-    </>
+          <div className="chat">
+            <div className="chat__screen" ref={listRef} aria-live="polite">
+              {messages.map((message) => (
+                <div
+                  key={message.id}
+                  className={`message message--${message.role}`}
+                >
+                  <div className="message__role">
+                    {message.role === 'user'
+                      ? 'You'
+                      : message.role === 'assistant'
+                        ? 'Gemini'
+                        : 'System'}
+                  </div>
+                  <div className="message__content">{message.content}</div>
+                </div>
+              ))}
+              {isSending && (
+                <div className="message message--system">
+                  <div className="message__role">System</div>
+                  <div className="message__content">Sending to Gemini...</div>
+                </div>
+              )}
+            </div>
+
+            <div className="chat__composer">
+              <textarea
+                value={input}
+                onChange={(event) => setInput(event.target.value)}
+                onKeyDown={handleKeyDown}
+                placeholder="Type a message and press Enter"
+                rows={3}
+              />
+              <div className="chat__actions">
+                <button
+                  type="button"
+                  className="btn btn--primary"
+                  onClick={sendMessage}
+                  disabled={!canSend}
+                >
+                  {isSending ? 'Sending...' : 'Send'}
+                </button>
+                <button
+                  type="button"
+                  className="btn btn--ghost"
+                  onClick={resetChat}
+                >
+                  New chat
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <footer className="window__status" aria-live="polite">
+            {error ? <span className="status__error">{error}</span> : null}
+          </footer>
+        </section>
+      </div>
+    </div>
   )
 }
 
